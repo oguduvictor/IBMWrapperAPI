@@ -1,15 +1,17 @@
-﻿using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
-using IBM.WatsonDeveloperCloud.PersonalityInsights.v3;
+﻿using IBM.WatsonDeveloperCloud.PersonalityInsights.v3;
 using IBM.WatsonDeveloperCloud.PersonalityInsights.v3.Model;
+using IBMWrapperAPI.Models;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Syncfusion.DocIO;
+using Syncfusion.DocIO.DLS;
+using Syncfusion.Pdf;
+using Syncfusion.Pdf.Parsing;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 
 namespace IBMWrapperAPI.Controllers
 {
@@ -63,17 +65,16 @@ namespace IBMWrapperAPI.Controllers
         /// <param name="file">file to analyze</param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult AnalyseFile([FromBody] IEnumerable<IFormFile> files)
+        public IActionResult AnalyseFile(IFormFile file)
         {
             try
             {
-                var file = files.First();
                 if (file == null)
                 {
                     throw new ArgumentException("File is required");
                 }
 
-                var data = ReadExcelFile(file);
+                var data = ReadFileContent(file);
 
                 return AnalyseData(data);
             }
@@ -82,7 +83,7 @@ namespace IBMWrapperAPI.Controllers
                 return StatusCode(400, ex.Message);
             }
         }
-
+        
         private JsonResult AnalyseData(string data)
         {
             if (data.Length < 100)
@@ -108,28 +109,34 @@ namespace IBMWrapperAPI.Controllers
             return Json(result);
         }
 
-        private string ReadExcelFile(IFormFile file)
+        private string ReadFileContent(IFormFile file)
         {
-            var x = file.OpenReadStream();
+            var filePath = Path.GetTempFileName();
+            var streamFile = file.OpenReadStream();
 
-            using (var spreadsheet = SpreadsheetDocument.Open(x, false))
+            switch (file.ContentType)
             {
-                var content = default(string);
-
-                var workBookPart = spreadsheet.WorkbookPart;
-                var workSheetPart = workBookPart.WorksheetParts.FirstOrDefault();
-
-                var reader = OpenXmlReader.Create(workSheetPart);
-
-                while (reader.Read())
-                {
-                    if (reader.ElementType == typeof(CellValue))
+                case MIMEType.Doc:
+                case MIMEType.ODT:
+                case MIMEType.Txt:
+                    using (var workBook = new WordDocument(streamFile, FormatType.Automatic))
                     {
-                        content = $"{content} {reader.GetText()}";
+                        return workBook.GetText();
                     }
-                }
+                case MIMEType.Pdf:
+                    using (var pdfDocument = new PdfLoadedDocument(streamFile))
+                    {
+                        var result = default(string);
 
-                return content;
+                        foreach (PdfPage page in pdfDocument.Pages)
+                        {
+                            result += page.ExtractText();
+                        }
+
+                        return result;
+                    }
+                default:
+                    throw new ArgumentOutOfRangeException(file.FileName, "File Extension Not allowed");
             }
         }
     }

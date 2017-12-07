@@ -14,11 +14,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DocumentFormat.OpenXml" Version="2.7.2" />
     <PackageReference Include="IBM.WatsonDeveloperCloud.PersonalityInsights.v3" Version="1.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="1.1.0" />
+    <PackageReference Include="Syncfusion.DocIO.Portable" Version="15.2120.0.46" />
+    <PackageReference Include="Syncfusion.Pdf.Portable" Version="15.2120.0.46" />
   </ItemGroup>
 
   <ItemGroup>
