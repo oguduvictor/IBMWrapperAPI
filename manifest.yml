@@ -1,0 +1,5 @@
+ applications:
+ - name: IBMPersonalityAPI
+   random-route: true
+   memory: 256M
+   disk_quota: 1024M

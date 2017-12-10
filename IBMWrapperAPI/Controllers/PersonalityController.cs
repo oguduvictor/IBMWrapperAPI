@@ -12,6 +12,8 @@ using Syncfusion.Pdf.Parsing;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using Tweetinvi;
 
 namespace IBMWrapperAPI.Controllers
 {
@@ -84,6 +86,23 @@ namespace IBMWrapperAPI.Controllers
             }
         }
         
+        /// <summary>
+        /// Method to extract user personality by twitter username
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
+        public IActionResult AnalyseUserTweets(string username)
+        {
+            if (username == null || username.Length == 0)
+            {
+                throw new ArgumentNullException(username, "Twitter Username must be specified");
+            }
+            
+            var tweets = Timeline.GetUserTimeline(username, maximumTweets: 100);
+
+            return AnalyseData(tweets.Select(x => x.FullText).ToString());
+        }
+
         private JsonResult AnalyseData(string data)
         {
             if (data.Length < 100)
@@ -122,18 +141,6 @@ namespace IBMWrapperAPI.Controllers
                     using (var workBook = new WordDocument(streamFile, FormatType.Automatic))
                     {
                         return workBook.GetText();
-                    }
-                case MIMEType.Pdf:
-                    using (var pdfDocument = new PdfLoadedDocument(streamFile))
-                    {
-                        var result = default(string);
-
-                        foreach (PdfPage page in pdfDocument.Pages)
-                        {
-                            result += page.ExtractText();
-                        }
-
-                        return result;
                     }
                 default:
                     throw new ArgumentOutOfRangeException(file.FileName, "File Extension Not allowed");
