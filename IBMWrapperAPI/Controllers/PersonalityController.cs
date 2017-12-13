@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Tweetinvi;
+using Tweetinvi.Models;
 
 namespace IBMWrapperAPI.Controllers
 {
@@ -27,7 +28,11 @@ namespace IBMWrapperAPI.Controllers
         private readonly string IBMId;
         private readonly string IBMPassword;
         private readonly PersonalityInsightsService _personalityInsights;
-
+        private const string CONSUMER_KEY = "W4xk2V4Yc4hgHrJdDHhnwahQ1";
+        private const string CONSUMER_SECRET = "xZU1ThN5wjFzC9pYj5NxBnjk6k6ohssGpTLa4qp80eA0ruDPsW";
+        private const string ACCESS_TOKEN = "1289180162-7pFDG8ItGfyExFZdEOZj2uKuyKJ83BaJaUrkiWq";
+        private const string ACCESS_TOKEN_SECRET = "UOLjtrHylaSA9IQ2JFl1T9efJEWXJ219JcmYBBvzmcJXv";
+        private readonly TwitterCredentials twitterCredentials;
         /// <summary>
         /// Wrapper Controller Constructor
         /// </summary>
@@ -36,6 +41,9 @@ namespace IBMWrapperAPI.Controllers
             IBMId = "f7de21f9-1eee-4e47-9ff2-1040d6c762cb";
             IBMPassword = "WJZs7TfsDzdI";
             _personalityInsights = new PersonalityInsightsService(IBMId, IBMPassword, "2017-10-13");
+            twitterCredentials = new TwitterCredentials(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET);
+            Auth.SetUserCredentials(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET);
+            Auth.ApplicationCredentials = twitterCredentials;
         }
 
         /// <summary>
@@ -91,14 +99,20 @@ namespace IBMWrapperAPI.Controllers
         /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
+        [HttpPost]
         public IActionResult AnalyseUserTweets(string username)
         {
             if (username == null || username.Length == 0)
             {
                 throw new ArgumentNullException(username, "Twitter Username must be specified");
             }
+
+            var tweets = Auth.ExecuteOperationWithCredentials(twitterCredentials, () => Timeline.GetUserTimeline(username, 100));
             
-            var tweets = Timeline.GetUserTimeline(username, maximumTweets: 100);
+            if (tweets == null)
+            {
+                throw new Exception("Twitter auth failed");
+            }
 
             return AnalyseData(tweets.Select(x => x.FullText).ToString());
         }
