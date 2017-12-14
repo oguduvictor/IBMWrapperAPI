@@ -9,25 +9,29 @@ using System.IO;
 
 namespace IBMWrapperAPI
 {
+    /// <summary>
+    /// Startup config
+    /// </summary>
     public class Startup
     {
-        public Startup(IConfiguration configuration, IHostingEnvironment env)
+        /// <summary>
+        /// public constructor
+        /// </summary>
+        /// <param name="configuration"></param>
+        public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-
-            var builder = new ConfigurationBuilder();
-
-            if (env.IsDevelopment())
-            {
-                builder.AddUserSecrets<Startup>();
-            }
-
-            Configuration = builder.Build();
         }
 
+        /// <summary>
+        /// Config for startup
+        /// </summary>
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to add services to the container.
+        /// </summary>
+        /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
@@ -53,7 +57,11 @@ namespace IBMWrapperAPI
             });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="env"></param>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())

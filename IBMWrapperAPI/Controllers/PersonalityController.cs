@@ -42,8 +42,8 @@ namespace IBMWrapperAPI.Controllers
             IBMPassword = "WJZs7TfsDzdI";
             _personalityInsights = new PersonalityInsightsService(IBMId, IBMPassword, "2017-10-13");
             twitterCredentials = new TwitterCredentials(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET);
-            Auth.SetUserCredentials(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET);
-            Auth.ApplicationCredentials = twitterCredentials;
+            //Auth.SetUserCredentials(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET);
+            //Auth.SetCredentials(twitterCredentials);
         }
 
         /// <summary>
@@ -106,9 +106,10 @@ namespace IBMWrapperAPI.Controllers
             {
                 throw new ArgumentNullException(username, "Twitter Username must be specified");
             }
+            Auth.ApplicationCredentials = new TwitterCredentials(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET);
+            var tweets = Timeline.GetUserTimeline(username, 100);
+            //Auth.ExecuteOperationWithCredentials(twitterCredentials, () => Timeline.GetUserTimeline(username, 100));
 
-            var tweets = Auth.ExecuteOperationWithCredentials(twitterCredentials, () => Timeline.GetUserTimeline(username, 100));
-            
             if (tweets == null)
             {
                 throw new Exception("Twitter auth failed");
