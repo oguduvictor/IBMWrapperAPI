@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Syncfusion.DocIO;
 using Syncfusion.DocIO.DLS;
-using Syncfusion.Pdf;
-using Syncfusion.Pdf.Parsing;
 using System;
 using System.Collections.Generic;
 using System.IO;
