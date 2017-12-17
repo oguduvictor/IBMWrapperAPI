@@ -71,7 +71,10 @@ namespace IBMWrapperAPI
 
             app.UseCors("MyPolicy");
 
-            app.UseMvc();
+            app.UseMvc(c =>
+            {
+                c.MapRoute("default", "{controller=Home}/{action=Index}");
+            });
 
             app.UseSwagger();
 
